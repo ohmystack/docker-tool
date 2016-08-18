@@ -1,0 +1,114 @@
+#!/bin/bash
+set -o errexit
+
+# default ENVs
+DOCKER_SOCK='unix:///var/run/docker.sock'
+
+DOCKER="docker -H $DOCKER_SOCK"
+
+# -----------------
+# Help
+# -----------------
+
+print_usage() {
+	# NOTE: After modification, remember to run `:Align -` in vim to align the help info with '-' seperator
+	cat <<-EOF
+	
+	Usage:
+	sudo ./docker-tool <action> <name>
+
+	Actions:
+		pid         - Get the pid of container
+		veth        - Show the veth pair of container <name>
+		img, images - Grep image by given <name>
+
+	EOF
+}
+
+# -----------------
+# Utils
+# -----------------
+echo_err() {
+	echo "$1" 1>&2
+}
+
+command_exists() {
+	which $1 > /dev/nul 2>&1
+}
+
+# Ensure there are <count> args
+# Usage: ensure_count_args 1 "$@"
+ensure_count_args() {
+	local require=$1
+	shift
+	if [ "$#" -lt $require ]; then
+		echo_err "Error: need $require args at least, but $# given"
+		exit 1
+	fi
+}
+
+ensure_command_exists() {
+	if ! command_exists $1 ; then
+		echo_err "Error: cannot find '$1' program"
+		exit 1
+	fi
+}
+
+# -----------------
+# Actions
+# -----------------
+
+action_pid() {
+	ensure_count_args 1 "$@"
+	$DOCKER inspect -f {{.State.Pid}} $1
+}
+
+action_veth() {
+	ensure_count_args 1 "$@"
+	ensure_command_exists nsenter
+	ensure_command_exists ethtool
+
+	local pid=$(action_pid $1)
+	in_veth_statistcs=$(nsenter -t $pid -n -F -- ethtool --statistics eth0 | tail -1)
+	out_veth_id=${in_veth_statistcs##*:}  # Get the value after ":"
+
+	echo "(Outside)"
+	ip link | grep --color=never -A 1 $out_veth_id
+	echo "(Inside container)"
+	nsenter -t $pid -n -F -- ip link show eth0
+}
+
+action_images() {
+	ensure_count_args 1 "$@"
+	$DOCKER images | grep --color=auto $1
+}
+
+# -----------------
+# Main
+# -----------------
+
+if [ -n $1 ]; then
+	case $1 in
+		'help'|'-h'|'--help')
+			print_usage
+			;;
+		'pid')
+			shift
+			action_pid "$@"
+			;;
+		'veth')
+			shift
+			action_veth "$@"
+			;;
+		'img'|'images')
+			shift
+			action_images "$@"
+			;;
+		*)
+			echo_err "Error: unknown action '$1'"
+			exit 1
+			;;
+	esac
+else
+	print_usage
+fi
