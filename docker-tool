@@ -28,8 +28,17 @@ print_usage() {
 # -----------------
 # Utils
 # -----------------
+
+# echo with 256 color
+# Usage: echo_color <color_id> <text>
+echo_color() {
+	dye=$(echo -e "\e[38;5;${1}m")
+	stop_dye=$(echo -e "\e[0m")
+	echo "$dye$2$stop_dye"
+}
+
 echo_err() {
-	echo "$1" 1>&2
+	echo_color 202 "$1" 1>&2
 }
 
 command_exists() {
@@ -72,9 +81,9 @@ action_veth() {
 	in_veth_statistcs=$(nsenter -t $pid -n -F -- ethtool --statistics eth0 | tail -1)
 	out_veth_id=${in_veth_statistcs##*:}  # Get the value after ":"
 
-	echo "(Outside)"
+	echo_color 222 "(Outside)"
 	ip link | grep --color=never -A 1 $out_veth_id
-	echo "(Inside container)"
+	echo_color 39 "(Inside container)"
 	nsenter -t $pid -n -F -- ip link show eth0
 }
 
