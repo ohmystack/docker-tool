@@ -85,9 +85,11 @@ action_veth() {
 		'default')
 			local in_veth_statistcs=$(nsenter -t $pid -n -F -- ethtool --statistics eth0 | tail -1)
 			local out_veth_id=${in_veth_statistcs##*:}  # Get the value after ":"
+			local out_veth_dev=$(ip link | grep $out_veth_id | tr -d ' ' | cut -d ':' -f 2)
 
 			echo_color 222 "(Outside)"
-			ip addr | grep --color=never -A 1 $out_veth_id
+			ip addr show $out_veth_dev
+
 			echo_color 39 "(Inside container)"
 			nsenter -t $pid -n -F -- ip addr show eth0
 			;;
@@ -95,7 +97,6 @@ action_veth() {
 			nsenter -t $pid -n -F -- ip addr show eth0
 			;;
 	esac
-
 }
 
 action_images() {
