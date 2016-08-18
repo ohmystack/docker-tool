@@ -78,13 +78,24 @@ action_veth() {
 	ensure_command_exists ethtool
 
 	local pid=$(action_pid $1)
-	in_veth_statistcs=$(nsenter -t $pid -n -F -- ethtool --statistics eth0 | tail -1)
-	out_veth_id=${in_veth_statistcs##*:}  # Get the value after ":"
 
-	echo_color 222 "(Outside)"
-	ip link | grep --color=never -A 1 $out_veth_id
-	echo_color 39 "(Inside container)"
-	nsenter -t $pid -n -F -- ip link show eth0
+	local network_mode=$($DOCKER inspect -f {{.HostConfig.NetworkMode}} $1)
+	echo_color 135 "NetworkMode: $network_mode"
+	case $network_mode in
+		'default')
+			local in_veth_statistcs=$(nsenter -t $pid -n -F -- ethtool --statistics eth0 | tail -1)
+			local out_veth_id=${in_veth_statistcs##*:}  # Get the value after ":"
+
+			echo_color 222 "(Outside)"
+			ip addr | grep --color=never -A 1 $out_veth_id
+			echo_color 39 "(Inside container)"
+			nsenter -t $pid -n -F -- ip addr show eth0
+			;;
+		'host')
+			nsenter -t $pid -n -F -- ip addr show eth0
+			;;
+	esac
+
 }
 
 action_images() {
