@@ -19,7 +19,7 @@ print_usage() {
 
 	Actions:
 		pid         - Get the pid of container
-		veth        - Show the veth pair of container <name>
+		net         - Show network info (mode, veth pair, ...) of container
 		img, images - Grep image by given <name>
 
 	EOF
@@ -72,7 +72,7 @@ action_pid() {
 	$DOCKER inspect -f {{.State.Pid}} $1
 }
 
-action_veth() {
+action_net() {
 	ensure_count_args 1 "$@"
 	ensure_command_exists nsenter
 	ensure_command_exists ethtool
@@ -117,9 +117,9 @@ if [ -n $1 ]; then
 			shift
 			action_pid "$@"
 			;;
-		'veth')
+		'net')
 			shift
-			action_veth "$@"
+			action_net "$@"
 			;;
 		'img'|'images')
 			shift
