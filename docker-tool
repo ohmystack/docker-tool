@@ -11,17 +11,19 @@ DOCKER="docker -H $DOCKER_SOCK"
 # -----------------
 
 print_usage() {
-	# NOTE: After modification, remember to run `:Align -` in vim to align the help info with '-' seperator
+	# NOTE: After modification, remember to
+	#       1. Run `:Align |` in vim to align the help info with '|' seperator
+	#       2. Sort the action list by alphabet
 	cat <<-EOF
 	
 	Usage:
-	sudo ./docker-tool <action> <name>
+	sudo ./docker-tool <action> [name]
 
 	Actions:
-		pid         - Get the pid of container
-		net         - Show network info (mode, veth pair, ...) of container
-		img, images - Grep image by given <name>
-		clean-img   - Clean dangling images
+		clean-img   | Clean dangling images
+		img, images | Grep image by given <name>
+		net         | Show network info (mode, veth pair, ...) of container
+		pid         | Get the pid of container
 
 	EOF
 }
