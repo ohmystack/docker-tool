@@ -26,6 +26,7 @@ print_usage() {
 		net <container-id/name>    | Show network info (mode, veth pair, ...) of container
 		ns-net <container-id/name> | Enter the net namespace of container, with all host's tools available. Use "exit" to exit
 		pid <container-id/name>    | Get the pid of container
+		run                        | == "docker run -it"
 		ssh <container-id/name>    | Enter the bash/sh of container
 
 	EOF
@@ -191,6 +192,10 @@ action_ssh() {
 	return 1
 }
 
+action_run() {
+	$DOCKER run -it "$@"
+}
+
 # -----------------
 # Main
 # -----------------
@@ -227,6 +232,10 @@ if [ -n "$1" ]; then
 		'ssh')
 			shift
 			action_ssh "$@"
+			;;
+		'run')
+			shift
+			action_run "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
