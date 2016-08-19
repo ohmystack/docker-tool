@@ -21,6 +21,7 @@ print_usage() {
 
 	Actions:
 		clean-img   | Clean dangling images
+		clean-vol   | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
 		img, images | Grep image by given <name>
 		net         | Show network info (mode, veth pair, ...) of container
 		pid         | Get the pid of container
@@ -116,6 +117,10 @@ action_clean_img() {
 	$DOCKER rmi $($DOCKER images -f "dangling=true" -q)
 }
 
+action_clean_vol() {
+	$DOCKER volume rm $($DOCKER volume ls -f "dangling=true" -q)
+}
+
 # -----------------
 # Main
 # -----------------
@@ -140,6 +145,10 @@ if [ -n $1 ]; then
 		'clean-img'|'clean-images')
 			shift
 			action_clean_img "$@"
+			;;
+		'clean-vol'|'clean-volume')
+			shift
+			action_clean_vol "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
