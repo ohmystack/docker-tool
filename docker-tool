@@ -21,6 +21,7 @@ print_usage() {
 		pid         - Get the pid of container
 		net         - Show network info (mode, veth pair, ...) of container
 		img, images - Grep image by given <name>
+		clean-img   - Clean dangling images
 
 	EOF
 }
@@ -109,6 +110,10 @@ action_images() {
 	$DOCKER images | grep --color=auto $1
 }
 
+action_clean_img() {
+	$DOCKER rmi $($DOCKER images -f "dangling=true" -q)
+}
+
 # -----------------
 # Main
 # -----------------
@@ -129,6 +134,10 @@ if [ -n $1 ]; then
 		'img'|'images')
 			shift
 			action_images "$@"
+			;;
+		'clean-img'|'clean-images')
+			shift
+			action_clean_img "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
