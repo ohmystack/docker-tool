@@ -26,6 +26,7 @@ print_usage() {
 		net         | Show network info (mode, veth pair, ...) of container
 		ns-net      | Enter the net namespace of container, with all host's tools available. Use "exit" to exit
 		pid         | Get the pid of container
+		ssh         | Enter the bash/sh of container
 
 	EOF
 }
@@ -171,6 +172,25 @@ action_ns_net() {
 	nsenter --target $(action_pid $1) --net
 }
 
+action_ssh() {
+	ensure_count_args 1 "$@"
+
+	local name=$1
+	# We don't use 'which' to detect command in containers because 'which' is not installed in some images.
+	# But in most cases, 'ls' is installed. Nor, probably there's no other commands availble.
+	if $DOCKER exec -it $name ls /bin/bash > /dev/null 2>&1 ; then
+		echo_color 148 "Enter ${name}, using /bin/bash"
+		$DOCKER exec -it $name /bin/bash
+		return $?
+	elif $DOCKER exec -it $name ls > /dev/null 2>&1 ; then
+		echo_color 148 "Enter ${name}, using /bin/sh"
+		$DOCKER exec -it $name /bin/sh
+		return $?
+	fi
+	echo_err "cannot find '/bin/bash' or '/bin/sh' in container:$name"
+	return 1
+}
+
 # -----------------
 # Main
 # -----------------
@@ -203,6 +223,10 @@ if [ -n $1 ]; then
 		'ns-net')
 			shift
 			action_ns_net "$@"
+			;;
+		'ssh')
+			shift
+			action_ssh "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
