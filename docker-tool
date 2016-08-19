@@ -24,6 +24,7 @@ print_usage() {
 		clean-vol   | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
 		img, images | Grep image by given <name>
 		net         | Show network info (mode, veth pair, ...) of container
+		ns-net      | Enter the net namespace of container, with all host's tools available. Use "exit" to exit
 		pid         | Get the pid of container
 
 	EOF
@@ -162,6 +163,14 @@ action_clean_vol() {
 	fi
 }
 
+action_ns_net() {
+	ensure_count_args 1 "$@"
+	ensure_command_exists nsenter
+
+	echo '(Remind: type "exit" to exit the namespace)'
+	nsenter --target $(action_pid $1) --net
+}
+
 # -----------------
 # Main
 # -----------------
@@ -190,6 +199,10 @@ if [ -n $1 ]; then
 		'clean-vol'|'clean-volume')
 			shift
 			action_clean_vol "$@"
+			;;
+		'ns-net')
+			shift
+			action_ns_net "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
