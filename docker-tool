@@ -195,7 +195,7 @@ action_ssh() {
 # Main
 # -----------------
 
-if [ -n $1 ]; then
+if [ -n "$1" ]; then
 	case $1 in
 		'help'|'-h'|'--help')
 			print_usage
