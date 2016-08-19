@@ -17,16 +17,16 @@ print_usage() {
 	cat <<-EOF
 	
 	Usage:
-	sudo ./docker-tool <action> [name]
+	sudo ./docker-tool <action> [args...]
 
 	Actions:
-		clean-img   | Clean dangling images
-		clean-vol   | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
-		img, images | Grep image by given <name>
-		net         | Show network info (mode, veth pair, ...) of container
-		ns-net      | Enter the net namespace of container, with all host's tools available. Use "exit" to exit
-		pid         | Get the pid of container
-		ssh         | Enter the bash/sh of container
+		clean-img                  | Clean dangling images
+		clean-vol                  | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
+		img <name>                 | Grep image by given <name>
+		net <container-id/name>    | Show network info (mode, veth pair, ...) of container
+		ns-net <container-id/name> | Enter the net namespace of container, with all host's tools available. Use "exit" to exit
+		pid <container-id/name>    | Get the pid of container
+		ssh <container-id/name>    | Enter the bash/sh of container
 
 	EOF
 }
