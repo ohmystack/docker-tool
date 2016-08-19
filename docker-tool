@@ -96,6 +96,11 @@ action_net() {
 		'host')
 			nsenter -t $pid -n -F -- ip addr show eth0
 			;;
+		'container:'*)
+			local cid=${network_mode##*:}  # Get the value after ":"
+			echo_color 135 "(In container:$cid)"
+			action_net $cid
+			;;
 	esac
 }
 
