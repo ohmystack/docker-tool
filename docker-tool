@@ -67,6 +67,25 @@ ensure_command_exists() {
 	fi
 }
 
+# Prompt a string to ask user y/n
+# Usage: ask_user [what you want to ask]
+# It returns exit code to indicate user's answer. 
+# In Linux, exit code 0 -> ok, 1 -> error
+ask_user() {
+	local answer
+	echo ""
+	read -p "$1 (y/n) " answer
+	case $answer in
+		"y"*|"Y"*)
+			return 0
+			;;
+		"n"*|"N"*)
+			return 1
+			;;
+	esac
+	return 1
+}
+
 # -----------------
 # Actions
 # -----------------
@@ -114,11 +133,33 @@ action_images() {
 }
 
 action_clean_img() {
-	$DOCKER rmi $($DOCKER images -f "dangling=true" -q)
+	if [ $($DOCKER images -f "dangling=true" -q | wc -l) -eq 0 ] ; then
+		echo "Already clean."
+		return 0
+	else
+		$DOCKER images -f "dangling=true"
+	fi
+
+	if ask_user "Are you sure to delete these images?" ; then
+		$DOCKER rmi $($DOCKER images -f "dangling=true" -q)
+	else
+		echo "Canceled."
+	fi
 }
 
 action_clean_vol() {
-	$DOCKER volume rm $($DOCKER volume ls -f "dangling=true" -q)
+	if [ $($DOCKER volume ls -f "dangling=true" -q | wc -l) -eq 0 ] ; then
+		echo "Already clean."
+		return 0
+	else
+		$DOCKER volume ls -f "dangling=true"
+	fi
+
+	if ask_user "Are you sure to delete these volumes?" ; then
+		$DOCKER volume rm $($DOCKER volume ls -f "dangling=true" -q)
+	else
+		echo "Canceled."
+	fi
 }
 
 # -----------------
