@@ -26,7 +26,7 @@ print_usage() {
 		net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
 		ns-net <container-id/name>       | Enter the net namespace of a container, with all host's tools available. Use "exit" to exit
 		pid <container-id/name>          | Get the pid of a container
-		ps <name>                        | Grep from docker ps
+		ps [name]                        | Grep from docker ps
 		run ...                          | == docker run -it --rm ...
 		ssh <container-id/name or image> | Enter the bash/sh of a container or image
 
@@ -284,7 +284,9 @@ action_logs() {
 }
 
 action_ps() {
-	ensure_count_args 1 "$@"
+	if [ $# -lt 1 ] ; then
+		exec $DOCKER ps
+	fi
 	$DOCKER ps | grep --color=auto $1
 }
 
