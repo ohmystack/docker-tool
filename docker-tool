@@ -146,7 +146,7 @@ action_pid() {
 	ensure_count_args 1 "$@"
 	ensure_is_container $1
 
-	$DOCKER inspect -f {{.State.Pid}} $1
+	exec $DOCKER inspect -f {{.State.Pid}} $1
 }
 
 action_net() {
@@ -225,48 +225,47 @@ action_ns_net() {
 	ensure_is_container $1
 
 	echo '(Remind: type "exit" to exit the namespace)'
-	nsenter --target $(action_pid $1) --net
+	exec nsenter --target $(action_pid $1) --net
 }
 
 action_ssh() {
 	ensure_count_args 1 "$@"
 	local name=$1
+	local exit_code
 
 	if is_container $name ; then
 		# We don't use 'which' to detect command in containers because 'which' is not installed in some images.
 		# But in most cases, 'ls' is installed. Nor, probably there's no other commands availble.
 		if $DOCKER exec -it $name ls /bin/bash > /dev/null 2>&1 ; then
 			echo_color 148 "Enter container '${name}', using /bin/bash"
-			$DOCKER exec -it $name /bin/bash
-			return $?
+			exec $DOCKER exec -it $name /bin/bash
 		elif $DOCKER exec -it $name ls > /dev/null 2>&1 ; then
 			echo_color 148 "Enter container '${name}', using /bin/sh"
-			$DOCKER exec -it $name /bin/sh
-			return $?
+			exec $DOCKER exec -it $name /bin/sh
 		fi
 		echo_err "cannot find '/bin/bash' or '/bin/sh' in container: $name"
-		return 1
+		exit 1
 	fi
 
 	if is_image $name ; then
 		echo_color 148 "Enter image '${name}'"
 
 		echo_color 64 "- Try to use /bin/bash"
-		$($DOCKER run -it --rm --entrypoint=/bin/bash $name)
-		local exit_code=$?
-		echo $exit_code
+		$DOCKER run -it --rm --entrypoint=/bin/bash $name
+		exit_code=$?
 		if [ ! $exit_code -eq 125 ] && [ ! $exit_code -eq 127 ] ; then  # exit code 125: exec failed, 127: no such command
-			return $exit_code
+			exit $exit_code
 		fi
 
 		echo_color 64 "- Try to use /bin/sh"
 		$DOCKER run -it --rm --entrypoint=/bin/sh $name
-		if [ ! $? -eq 125 ] && [ ! $? -eq 127 ] ; then
-			return $?
+		exit_code=$?
+		if [ ! $exit_code -eq 125 ] && [ ! $exit_code -eq 127 ] ; then
+			exit $exit_code
 		fi
 
 		echo_err "cannot find '/bin/bash' or '/bin/sh' in image: $name"
-		return 1
+		exit 1
 	fi
 
 	echo_err "'$name' is not a container id/fullname, nor an image name"
@@ -274,14 +273,14 @@ action_ssh() {
 }
 
 action_run() {
-	$DOCKER run -it --rm "$@"
+	exec $DOCKER run -it --rm "$@"
 }
 
 action_logs() {
 	ensure_count_args 1 "$@"
 	ensure_is_container $1
 
-	$DOCKER logs --tail=50 -f "$@"
+	exec $DOCKER logs --tail=50 -f "$@"
 }
 
 action_ps() {
