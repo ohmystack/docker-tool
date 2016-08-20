@@ -128,12 +128,22 @@ is_container() {
 	return 1
 }
 
+# Ensure that $1 is a running container id or name
+ensure_is_container() {
+	if ! is_container $1 ; then
+		echo_err "'$1' is not a container id or name"
+		exit 1
+	fi
+}
+
 # -----------------
 # Actions
 # -----------------
 
 action_pid() {
 	ensure_count_args 1 "$@"
+	ensure_is_container $1
+
 	$DOCKER inspect -f {{.State.Pid}} $1
 }
 
@@ -141,6 +151,7 @@ action_net() {
 	ensure_count_args 1 "$@"
 	ensure_command_exists nsenter
 	ensure_command_exists ethtool
+	ensure_is_container $1
 
 	local pid=$(action_pid $1)
 
@@ -207,6 +218,7 @@ action_clean_vol() {
 action_ns_net() {
 	ensure_count_args 1 "$@"
 	ensure_command_exists nsenter
+	ensure_is_container $1
 
 	echo '(Remind: type "exit" to exit the namespace)'
 	nsenter --target $(action_pid $1) --net
@@ -254,6 +266,7 @@ action_ssh() {
 	fi
 
 	echo_err "'$name' is not a container id/fullname, nor an image name"
+	exit 1
 }
 
 action_run() {
