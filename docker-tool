@@ -21,7 +21,7 @@ print_usage() {
 	Actions:
 		clean-img                        | Clean dangling images
 		clean-vol                        | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
-		img <name>                       | Grep image by given <name>
+		img [name]                       | Grep image by given <name>
 		logs <container-id/name>         | == docker logs --tail=50 -f <container-id/name>
 		net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
 		ns-net <container-id/name>       | Enter the net namespace of a container, with all host's tools available. Use "exit" to exit
@@ -182,8 +182,10 @@ action_net() {
 	esac
 }
 
-action_images() {
-	ensure_count_args 1 "$@"
+action_img() {
+	if [ $# -lt 1 ] ; then
+		exec $DOCKER images
+	fi
 	$DOCKER images | grep --color=auto $1
 }
 
@@ -306,7 +308,7 @@ if [ -n "$1" ]; then
 			;;
 		'img'|'images')
 			shift
-			action_images "$@"
+			action_img "$@"
 			;;
 		'clean-img'|'clean-images')
 			shift
