@@ -22,6 +22,7 @@ print_usage() {
 		clean-img                        | Clean dangling images
 		clean-vol                        | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
 		img <name>                       | Grep image by given <name>
+		logs <container-id/name>         | == docker logs --tail=50 -f <container-id/name>
 		net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
 		ns-net <container-id/name>       | Enter the net namespace of a container, with all host's tools available. Use "exit" to exit
 		pid <container-id/name>          | Get the pid of a container
@@ -273,6 +274,13 @@ action_run() {
 	$DOCKER run -it --rm "$@"
 }
 
+action_logs() {
+	ensure_count_args 1 "$@"
+	ensure_is_container $1
+
+	$DOCKER logs --tail=50 -f "$@"
+}
+
 # -----------------
 # Main
 # -----------------
@@ -313,6 +321,10 @@ if [ -n "$1" ]; then
 		'run')
 			shift
 			action_run "$@"
+			;;
+		'logs'|'log')
+			shift
+			action_logs "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
