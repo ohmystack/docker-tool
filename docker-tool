@@ -13,8 +13,14 @@ print_usage() {
 	# NOTE: After modification, remember to
 	#       1. Run `:Align |` in vim to align the help info with '|' seperator
 	#       2. Sort the action list by alphabet
-	cat <<-EOF
-	
+	cat <<-'EOF'
+    __              __                      __                __
+.--|  |.-----.----.|  |--.-----.----.______|  |_.-----.-----.|  |
+|  _  ||  _  |  __||    <|  -__|   _|______|   _|  _  |  _  ||  |
+|_____||_____|____||__|__|_____|__|        |____|_____|_____||__|
+
+	dt (docker-tool)
+
 	Usage:
 	sudo ./docker-tool <action> [args...]
 
