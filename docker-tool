@@ -19,16 +19,16 @@ print_usage() {
 	sudo ./docker-tool <action> [args...]
 
 	Actions:
-		clean-img                        | Clean dangling images
-		clean-vol                        | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
-		img [name]                       | Grep image by given <name>
-		logs <container-id/name>         | == docker logs --tail=50 -f <container-id/name>
-		net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
-		ns-net <container-id/name>       | Enter the net namespace of a container, with all host's tools available. Use "exit" to exit
-		pid <container-id/name>          | Get the pid of a container
-		ps [name]                        | Grep from docker ps
-		run ...                          | == docker run -it --rm ...
-		ssh <container-id/name or image> | Enter the bash/sh of a container or image
+	  clean-img                        | Clean dangling images
+	  clean-vol                        | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
+	  img [name]                       | Grep image by given <name>
+	  logs <container-id/name>         | == docker logs --tail=50 -f <container-id/name>
+	  net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
+	  ns-net <container-id/name>       | Enter the net namespace of a container, with all host's tools available. Use "exit" to exit
+	  pid <container-id/name>          | Get the pid of a container
+	  ps [name]                        | Grep from docker ps
+	  run ...                          | == docker run -it --rm ...
+	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
 
 	EOF
 }
