@@ -36,6 +36,9 @@ print_usage() {
 	  run ...                          | == docker run -it --rm ...
 	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
 
+	Other actions:
+	  clean-k8s                        | Clean dangling k8s containers
+
 	EOF
 }
 
@@ -296,6 +299,21 @@ action_ps() {
 	$DOCKER ps | grep --color=auto $1
 }
 
+action_clean_k8s() {
+	if [ $($DOCKER ps -aq -f status=exited -f name=k8s | wc -l) -eq 0 ] ; then
+		echo "Already clean."
+		return 0
+	else
+		$DOCKER ps -a -f status=exited -f name=k8s
+	fi
+
+	if ask_user "Are you sure to delete these containers?" ; then
+		$DOCKER rm -v $($DOCKER ps -aq -f status=exited -f name=k8s)
+	else
+		echo "Canceled."
+	fi
+}
+
 # -----------------
 # Main
 # -----------------
@@ -344,6 +362,10 @@ if [ -n "$1" ]; then
 		'ps')
 			shift
 			action_ps "$@"
+			;;
+		'clean-k8s')
+			shift
+			action_clean_k8s "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
