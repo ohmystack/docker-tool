@@ -331,7 +331,7 @@ if [ -n "$1" ]; then
 			shift
 			action_net "$@"
 			;;
-		'img'|'images')
+		'img'|'images'|'image')
 			shift
 			action_img "$@"
 			;;
