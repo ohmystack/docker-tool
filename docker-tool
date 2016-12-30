@@ -142,7 +142,7 @@ is_container() {
 # Ensure that $1 is a running container id or name
 ensure_is_container() {
 	if ! is_container $1 ; then
-		echo_err "'$1' is not a container id or name"
+		echo_err "'$1' is not a running container id or name"
 		exit 1
 	fi
 }
