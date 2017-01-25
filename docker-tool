@@ -38,6 +38,7 @@ print_usage() {
 
 	Other actions:
 	  clean-k8s                        | Clean dangling k8s containers
+	  self-upgrade                     | Upgrade "docker-tool" to the latest version
 
 	EOF
 }
@@ -329,6 +330,19 @@ action_clean_k8s() {
 	fi
 }
 
+action_self_upgrade() {
+	local self=$0
+	local dt_download_link="https://raw.githubusercontent.com/ohmystack/docker-tool/master/docker-tool"
+	local dt_repo="https://github.com/ohmystack/docker-tool"
+	# If user launchs this script from a symlink, find the real file path
+	if [ -L $self ] ; then
+		self=$(readlink -f $self)
+	fi
+	echo "upgrade docker-tool from $dt_repo ..."
+	cp $self /tmp/ && echo "(the old docker-tool has been backuped into /tmp)"
+	curl -s -o $self $dt_download_link && chmod a+x $self && echo "done." || echo_err "failed."
+}
+
 # -----------------
 # Main
 # -----------------
@@ -381,6 +395,10 @@ if [ -n "$1" ]; then
 		'clean-k8s')
 			shift
 			action_clean_k8s "$@"
+			;;
+		'self-upgrade')
+			shift
+			action_self_upgrade "$@"
 			;;
 		*)
 			echo_err "Error: unknown action '$1'"
