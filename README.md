@@ -29,19 +29,22 @@ You can use command-line `docker-tool` or `dt` for short.
 * `dt pid`
 
 Get the pid of a container.
+
 ![dt-pid](docs/img/dt-pid.png)
 
 * `dt net`
 
-Get the network type and info.
+Get the network type and info.  
 You can even get the **veth pair info** of a container if it is using the "default" NetworkMode. This is very helpful when debugging the network.
+
 ![dt-net-default](docs/img/dt-net-default.png)
 ![dt-net-host](docs/img/dt-net-host.png)
 
 * `dt ns-net`
 
-Enter the network namespace of a container.
+Enter the network namespace of a container.  
 So that you can use the utils installed on your server to debug the container inside network.
+
 ![dt-ns-net](docs/img/dt-ns-net.png)
 
 * `dt ssh`
@@ -51,6 +54,7 @@ Go inside both container or image, automatically choose to use `bash` or `sh`.
 > Now, you only need the `dt ssh`.
 
 ![dt-ssh-container](docs/img/dt-ssh-container.png)
+
 ![dt-ssh-image](docs/img/dt-ssh-image.png)
 
 * `dt ps` & `dt img`
@@ -58,6 +62,7 @@ Go inside both container or image, automatically choose to use `bash` or `sh`.
 Search (or list) the containers and images.
 
 ![dt-ps](docs/img/dt-ps.png)
+
 ![dt-img](docs/img/dt-img.png)
 
 * `dt logs`
@@ -65,6 +70,7 @@ Search (or list) the containers and images.
 Short for `docker logs --tail=50 -f <container-id/name>`.
 
 > ...
+> 
 > More features, you can check `dt help`.
 
 
@@ -73,3 +79,5 @@ Short for `docker logs --tail=50 -f <container-id/name>`.
 If you have any good ideas about `docker-tool`, welcome to submit your PRs.
 
 One simple rule: Keep this `docker-tool` a single file bash program.
+
+[@ohmystack](https://github.com/ohmystack)
