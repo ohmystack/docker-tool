@@ -50,7 +50,7 @@ So that you can use the utils installed on your server to debug the container in
 * `dt ssh`
 
 Go inside both container or image, automatically choose to use `bash` or `sh`.
-> Before this, you always type `docker exec -it xxx /bin/bash`, and then find that there is no `bash` in the container, then change to `sh`. Or, type `docker run -it --rm xxx /bin/bash` to get into an image.
+> Before this, you always type `docker exec -it xxx /bin/bash`, and then find that there is no `bash` in the container, then change to `sh`. Or, type `docker run -it --rm --entrypoint /bin/bash xxx` to get into an image.
 > Now, you only need the `dt ssh`.
 
 ![dt-ssh-container](docs/img/dt-ssh-container.png)
