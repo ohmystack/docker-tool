@@ -124,15 +124,17 @@ is_image() {
 # Whether this is a Docker container ID/name
 # Exit code 0 -> ok, 1 -> error
 # Usage:
-#   if is_container <name> ; then ... ; fi
+#   if is_container <name> <ps_opts> ; then ... ; fi
+#   e.g. is_container xxx --all
 is_container() {
 	local keyword=$1
+	local ps_opts=$2
 	# Try to match with container ID
-	if [ $($DOCKER ps -q -f "id=$keyword" | wc -l) -gt 0 ] ; then
+	if [ $($DOCKER ps -q $ps_opts -f "id=$keyword" | wc -l) -gt 0 ] ; then
 		return 0
 	fi
 	# Try to match with container fullname
-	for c_name in $($DOCKER ps --format "{{.Names}}") ; do
+	for c_name in $($DOCKER ps $ps_opts --format "{{.Names}}") ; do
 		if [ $c_name = $keyword ] ; then
 			return 0
 		fi
@@ -140,10 +142,20 @@ is_container() {
 	return 1
 }
 
-# Ensure that $1 is a running container id or name
+# Ensure that $1 is a container id or name
+# Exit code 0 -> yes, 1 -> no
+# Usage:
+#   if ensure_is_container <name> <ps_opts> ; then ... ; fi
+#   e.g. ensure_is_container xxx --all
 ensure_is_container() {
-	if ! is_container $1 ; then
-		echo_err "'$1' is not a running container id or name"
+	local keyword=$1
+	local opts=$2
+	local running="a running"
+	if [ $opts = "-a" ] || [ $opts = "--all" ] ; then
+		running="a"
+	fi
+	if ! is_container $keyword $opts; then
+		echo_err "'$keyword' is not $running container id or name"
 		exit 1
 	fi
 }
@@ -278,7 +290,7 @@ action_ssh() {
 		exit 1
 	fi
 
-	echo_err "'$name' is not a container id/fullname, nor an image name"
+	echo_err "'$name' is not a running container id/fullname, nor an image name"
 	exit 1
 }
 
@@ -288,7 +300,7 @@ action_run() {
 
 action_logs() {
 	ensure_count_args 1 "$@"
-	ensure_is_container $1
+	ensure_is_container $1 --all
 
 	exec $DOCKER logs --tail=50 -f "$@"
 }
