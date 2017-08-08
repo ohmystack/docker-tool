@@ -52,7 +52,7 @@ print_usage() {
 echo_color() {
 	dye=$(echo -e "\e[38;5;${1}m")
 	stop_dye=$(echo -e "\e[0m")
-	echo "$dye$2$stop_dye"
+	echo "${dye}${2}${stop_dye}"
 }
 
 echo_err() {
