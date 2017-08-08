@@ -10,9 +10,9 @@ It is **NOT** just an "alias" to the Docker cli, it can do many really helpful t
 
 ```bash
 INSTALL_DIR='/usr/local/bin'
-wget -O ${INSTALL_DIR}/docker-tool https://raw.githubusercontent.com/ohmystack/docker-tool/master/docker-tool
-chmod a+x ${INSTALL_DIR}/docker-tool
-ln -sf ${INSTALL_DIR}/docker-tool ${INSTALL_DIR}/dt
+sudo wget -O ${INSTALL_DIR}/docker-tool https://raw.githubusercontent.com/ohmystack/docker-tool/master/docker-tool
+sudo chmod a+x ${INSTALL_DIR}/docker-tool
+sudo ln -sf ${INSTALL_DIR}/docker-tool ${INSTALL_DIR}/dt
 ```
 
 You can use command-line `docker-tool` or `dt` for short.
