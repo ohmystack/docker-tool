@@ -350,9 +350,15 @@ action_self_upgrade() {
 	if [ -L $self ] ; then
 		self=$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $self)
 	fi
+	local base=$(basename $self)
+	if [ -z "${base}" ] ; then
+		echo_err "failed to find docker-tool installation path."
+		exit 1
+	fi
 	echo "upgrade docker-tool from $dt_repo ..."
 	cp $self /tmp/ && echo "(the old docker-tool has been backuped into /tmp)"
-	curl -s -o $self $dt_download_link && chmod a+x $self && echo "done." || echo_err "failed."
+	# Do this in one line, and exit immediately to prevent executing wrong lines in the new downloaded script.
+	curl -s $dt_download_link > $self && chmod a+x $self && rm /tmp/$base && echo "done." && exit 0 || echo_err "failed." && mv /tmp/$base $self && exit 1
 }
 
 # -----------------
