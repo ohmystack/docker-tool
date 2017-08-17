@@ -151,7 +151,7 @@ ensure_is_container() {
 	local keyword=$1
 	local opts=$2
 	local running="a running"
-	if [ $opts = "-a" ] || [ $opts = "--all" ] ; then
+	if [ "$opts" == "-a" ] || [ "$opts" == "--all" ] ; then
 		running="a"
 	fi
 	if ! is_container $keyword $opts; then
