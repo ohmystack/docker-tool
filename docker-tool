@@ -36,7 +36,9 @@ print_usage() {
 	  run ...                          | == docker run -it --rm ...
 	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
 	  config <key> <value>             | config docker-tool, save under /etc/docker-tool/ (available keys: tag-prefix)
-	  tag [-p|--push] <image>          | tag the image by configured prefix. Add '-p' or '--push' to push the new image after tagging it.
+	  tag [-p] [--rm] <image>          | tag the image by configured prefix.
+	                                   |   '-p' to push the new image after tagging it.
+	                                   |   '--rm' to remove the new local image after pushing it. (must use --rm with -p)
 
 	Other actions:
 	  clean-k8s                        | Clean dangling k8s containers
@@ -365,10 +367,14 @@ action_config() {
 
 action_tag() {
 	local push=false
+	local delete=false
 	while [ -n "$1" ]; do
 		case $1 in
 			'-p'|'--push')
 				push=true
+				;;
+			'--rm')
+				delete=true
 				;;
 			*)
 				local raw_img=$1
@@ -389,8 +395,11 @@ action_tag() {
 	local img_name=${raw_img##*/}
 	local new_img=${prefix}/${img_name}
 	docker tag $raw_img $new_img
-	if $push ; then
+	if [ $? -eq 0 ] && $push ; then
 		docker push $new_img
+		if [ $? -eq 0 ] && $delete ; then
+			docker rmi $new_img
+		fi
 	fi
 }
 
