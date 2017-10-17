@@ -105,6 +105,34 @@ ask_user() {
 	return 1
 }
 
+# echo_by_result will echo messages according to the given return code $1,
+# if it is 0, return $2 success message,
+# if it is not 0, return $3 failure message.
+# "-e|--exit" will exit immediately if it failed.
+# Usage:
+#   echo_by_result --err-exit $(ls -lh) "ok" "failed"
+#   echo_by_result --err-exit $? "ok" "failed"
+echo_by_result() {
+	local exit_now=false
+	case $1 in
+		'-e'|'--err-exit')
+			exit_now=true
+			shift
+			;;
+	esac
+
+	local ret_code=$1
+	if [ $ret_code -eq 0 ] ; then
+		echo $2
+	else
+		echo $3
+		if $exit_now ; then
+			exit $ret_code
+		fi
+	fi
+	return $ret_code
+}
+
 # read_config reads the config value by key from CONFIG_DIR
 read_config() {
 	if [ -z "${1}" ] ; then
@@ -394,11 +422,15 @@ action_tag() {
 	# Get the string after the last "/"
 	local img_name=${raw_img##*/}
 	local new_img=${prefix}/${img_name}
-	docker tag $raw_img $new_img
-	if [ $? -eq 0 ] && $push ; then
-		docker push $new_img
-		if [ $? -eq 0 ] && $delete ; then
-			docker rmi $new_img
+
+	$DOCKER tag $raw_img $new_img
+	echo_by_result --err-exit $? "new image: $new_img" "failed to tag image."
+	if $push ; then
+		$DOCKER push $new_img
+		echo_by_result --err-exit $? "pushed image: $new_img" "failed to push image '$new_img'"
+		if $delete ; then
+			$DOCKER rmi $new_img
+			echo_by_result --err-exit $? "removed local image: $new_img" "failed to remove local image '$new_img'"
 		fi
 	fi
 }
