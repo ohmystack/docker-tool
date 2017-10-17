@@ -36,7 +36,7 @@ print_usage() {
 	  run ...                          | == docker run -it --rm ...
 	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
 	  config <key> <value>             | config docker-tool, save under /etc/docker-tool/ (available keys: tag-prefix)
-	  tag <image>                      | tag the image by configured prefix. Add '-p' or '--push' to push the new image after tagging it.
+	  tag [-p|--push] <image>          | tag the image by configured prefix. Add '-p' or '--push' to push the new image after tagging it.
 
 	Other actions:
 	  clean-k8s                        | Clean dangling k8s containers
