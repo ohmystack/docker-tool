@@ -35,6 +35,8 @@ print_usage() {
 	  ps [-a] [name]                   | Grep from docker ps
 	  run ...                          | == docker run -it --rm ...
 	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
+	  config <key> <value>             | config docker-tool, save under /etc/docker-tool/ (available keys: tag-prefix)
+	  tag <image>                      | tag the image by configured prefix. Add '-p' or '--push' to push the new image after tagging it.
 
 	Other actions:
 	  clean-k8s                        | Clean dangling k8s containers
@@ -101,6 +103,21 @@ ask_user() {
 	return 1
 }
 
+# read_config reads the config value by key from CONFIG_DIR
+read_config() {
+	if [ -z "${1}" ] ; then
+		echo_err "must provide a config key"
+		exit 1
+	fi
+	local key=$1
+	local file=$CONFIG_DIR/$key
+	if [ ! -f $file ] ; then
+		echo_err "no such config"
+		exit 1
+	fi
+	cat $file
+}
+
 # -----------------
 # Utils - Docker
 # -----------------
@@ -159,6 +176,12 @@ ensure_is_container() {
 		exit 1
 	fi
 }
+
+# -----------------
+# Variables
+# -----------------
+
+CONFIG_DIR="/etc/docker-tool"
 
 # -----------------
 # Actions
@@ -327,6 +350,50 @@ action_ps() {
 	fi
 }
 
+action_config() {
+	if [ ! -d $CONFIG_DIR ] ; then
+		mkdir -p $CONFIG_DIR
+	fi
+	if [ $# -lt 2 ]; then
+		echo_err "must have at least 2 args: key, value"
+		exit 1
+	fi
+	local key=$1
+	local value=$2
+	echo $value > $CONFIG_DIR/$key
+}
+
+action_tag() {
+	local push=false
+	while [ -n "$1" ]; do
+		case $1 in
+			'-p'|'--push')
+				push=true
+				;;
+			*)
+				local raw_img=$1
+				;;
+		esac
+		shift
+	done
+	if [ -z "${raw_img}" ] ; then
+		echo_err "must provide an image name"
+		exit 1
+	fi
+	local prefix=$(read_config "tag-prefix")
+	if [ -z "${prefix}" ] ; then
+		echo_err "tag-prefix not set.\nRun this: dt config tag-prefix <value>"
+		exit 1
+	fi
+	# Get the string after the last "/"
+	local img_name=${raw_img##*/}
+	local new_img=${prefix}/${img_name}
+	docker tag $raw_img $new_img
+	if $push ; then
+		docker push $new_img
+	fi
+}
+
 action_clean_k8s() {
 	if [ $($DOCKER ps -aq -f status=exited -f name=k8s | wc -l) -eq 0 ] ; then
 		echo "Already clean."
@@ -409,6 +476,14 @@ if [ -n "$1" ]; then
 		'ps')
 			shift
 			action_ps "$@"
+			;;
+		'config')
+			shift
+			action_config "$@"
+			;;
+		'tag')
+			shift
+			action_tag "$@"
 			;;
 		'clean-k8s')
 			shift
