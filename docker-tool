@@ -63,6 +63,10 @@ echo_err() {
 	echo_color 202 "$1" 1>&2
 }
 
+echo_success() {
+	echo_color 148 "$1" 1>&2
+}
+
 command_exists() {
 	which $1 > /dev/null 2>&1
 }
@@ -123,9 +127,9 @@ echo_by_result() {
 
 	local ret_code=$1
 	if [ $ret_code -eq 0 ] ; then
-		echo $2
+		echo_success $2
 	else
-		echo $3
+		echo_err $3
 		if $exit_now ; then
 			exit $ret_code
 		fi
@@ -424,13 +428,13 @@ action_tag() {
 	local new_img=${prefix}/${img_name}
 
 	$DOCKER tag $raw_img $new_img
-	echo_by_result --err-exit $? "new image: $new_img" "failed to tag image."
+	echo_by_result --err-exit $? " >>> new image: $new_img" "failed to tag image."
 	if $push ; then
 		$DOCKER push $new_img
-		echo_by_result --err-exit $? "pushed image: $new_img" "failed to push image '$new_img'"
+		echo_by_result --err-exit $? " >>> pushed image: $new_img" "failed to push image '$new_img'"
 		if $delete ; then
 			$DOCKER rmi $new_img
-			echo_by_result --err-exit $? "removed local image: $new_img" "failed to remove local image '$new_img'"
+			echo_by_result --err-exit $? " >>> removed local image: $new_img" "failed to remove local image '$new_img'"
 		fi
 	fi
 }
