@@ -2,8 +2,8 @@
 
 # default ENVs
 DOCKER_SOCK='unix:///var/run/docker.sock'
-
 DOCKER="docker -H $DOCKER_SOCK"
+CONFIG_DIR="/etc/docker-tool"
 
 # -----------------
 # Help
@@ -35,7 +35,8 @@ print_usage() {
 	  ps [-a] [name]                   | Grep from docker ps
 	  run ...                          | == docker run -it --rm ...
 	  ssh <container-id/name or image> | Enter the bash/sh of a container or image
-	  config <key> <value>             | config docker-tool, save under /etc/docker-tool/ (available keys: tag-prefix)
+	  config [-l|--list] <key> <value> | config docker-tool, save under /etc/docker-tool/ (available keys: tag-prefix)
+	                                   |   '-l', '--list' to show all the current configurations.
 	  tag [-p] [--rm] <image>          | tag the image by configured prefix.
 	                                   |   '-p' to push the new image after tagging it.
 	                                   |   '--rm' to remove the new local image after pushing it. (must use --rm with -p)
@@ -212,12 +213,6 @@ ensure_is_container() {
 }
 
 # -----------------
-# Variables
-# -----------------
-
-CONFIG_DIR="/etc/docker-tool"
-
-# -----------------
 # Actions
 # -----------------
 
@@ -385,6 +380,23 @@ action_ps() {
 }
 
 action_config() {
+	local list_only=false
+	case $1 in
+		'-l'|'--list')
+			list_only=true
+			;;
+	esac
+
+	# List
+	if $list_only ; then
+		local filename
+		pushd $CONFIG_DIR > /dev/null
+		for filename in $(ls) ; do echo "$filename=$(cat $filename)"; done
+		popd > /dev/null
+		exit 0
+	fi
+
+	# Set
 	if [ ! -d $CONFIG_DIR ] ; then
 		mkdir -p $CONFIG_DIR
 	fi
