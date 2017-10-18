@@ -119,18 +119,18 @@ ask_user() {
 #   echo_by_result --err-exit $? "ok" "failed"
 echo_by_result() {
 	local exit_now=false
-	case $1 in
+	case "$1" in
 		'-e'|'--err-exit')
 			exit_now=true
 			shift
 			;;
 	esac
 
-	local ret_code=$1
+	local ret_code="$1"
 	if [ $ret_code -eq 0 ] ; then
-		echo_success $2
+		echo_success "$2"
 	else
-		echo_err $3
+		echo_err "$3"
 		if $exit_now ; then
 			exit $ret_code
 		fi
