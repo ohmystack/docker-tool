@@ -55,8 +55,8 @@ print_usage() {
 # echo with 256 color
 # Usage: echo_color <color_id> <text>
 echo_color() {
-	dye=$(echo -e "\e[38;5;${1}m")
-	stop_dye=$(echo -e "\e[0m")
+	dye=$(echo -e "\x1B[38;5;${1}m")
+	stop_dye=$(echo -e "\x1B[0m")
 	echo "${dye}${2}${stop_dye}"
 }
 
