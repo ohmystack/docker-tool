@@ -27,6 +27,7 @@ print_usage() {
 	Actions:
 	  clean-img                        | Clean dangling images
 	  clean-vol                        | (DANGEROUS!!!) Clean dangling volumes, who are not referenced by any containers
+	  clean-container                  | Remove exited containers
 	  img [name]                       | Grep image by given <name>
 	  logs <container-id/name>         | == docker logs --tail=50 -f <container-id/name>
 	  net <container-id/name>          | Show network info (mode, veth pair, ...) of a container
@@ -293,6 +294,21 @@ action_clean_vol() {
 	fi
 }
 
+action_clean_container() {
+	if [ $($DOCKER ps -aq --filter status=exited | wc -l) -eq 0 ] ; then
+		echo "Already clean."
+		return 0
+	else
+		$DOCKER ps -aq --filter status=exited
+	fi
+
+	if ask_user "Are you sure to delete these containers?" ; then
+		$DOCKER rm -v $($DOCKER ps -aq --filter status=exited)
+	else
+		echo "Canceled."
+	fi
+}
+
 action_ns_net() {
 	ensure_count_args 1 "$@"
 	ensure_command_exists nsenter
@@ -513,6 +529,10 @@ if [ -n "$1" ]; then
 		'clean-vol'|'clean-volume')
 			shift
 			action_clean_vol "$@"
+			;;
+		'clean-container')
+			shift
+			action_clean_container "$@"
 			;;
 		'ns-net')
 			shift
