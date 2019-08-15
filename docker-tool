@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # default ENVs
-DOCKER_SOCK='unix:///var/run/docker.sock'
-DOCKER="docker -H $DOCKER_SOCK"
+DOCKER="docker"
 CONFIG_DIR="/etc/docker-tool"
 
 # -----------------
