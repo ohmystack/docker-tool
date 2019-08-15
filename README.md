@@ -43,7 +43,7 @@ Other actions:
 
 ```bash
 INSTALL_DIR='/usr/local/bin'
-sudo wget -O ${INSTALL_DIR}/docker-tool https://raw.githubusercontent.com/ohmystack/docker-tool/master/docker-tool
+sudo curl -o ${INSTALL_DIR}/docker-tool https://raw.githubusercontent.com/ohmystack/docker-tool/master/docker-tool
 sudo chmod a+x ${INSTALL_DIR}/docker-tool
 sudo ln -sf ${INSTALL_DIR}/docker-tool ${INSTALL_DIR}/dt
 ```
